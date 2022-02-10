@@ -23,10 +23,10 @@ CREATE DATABASE testgeo WITH OWNER testgeo ;
 GRANT CONNECT ON DATABASE testgeo TO testgeo;
 GRANT ALL ON DATABASE testgeo TO testgeo;
 ```
-####Подключение к базе созданым пользователем
+#### Подключение к базе созданым пользователем
 > psql -d testgeo -p 5434 
 
-####Подключение PostGis
+#### Подключение PostGis
 ``` sql
 CREATE EXTENSION postgis;
 CREATE EXTENSION postgis_sfcgal;
