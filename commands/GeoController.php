@@ -120,8 +120,8 @@ class GeoController extends Controller
                 )->exists()){
                     continue;
                 }
-                $url = 'https://soft.farm/api/open/cadastral/find-center-by-cadastral-number?'
-                    .'clientId=LMRZYHROM1o94YQQXMs42-P3s-n6thKQVu9EjS17SCX3nnqT151Ile035wvCi7hC1E33fzxUSJuYnHgB'
+                $url = getenv('CADASTR_API_URL')
+                    .'?clientId='.urlencode(getenv('CADASTR_API_CLIENT_ID'))
                     .'&cadastralNumber='.urlencode($dataCsv[0]);
                 $result = file_get_contents($url);
                 if(empty($result)){
