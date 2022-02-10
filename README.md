@@ -5,18 +5,18 @@
 - Apache  2.4
 - composer 2.0.7
 
-#Установка
+# Установка
 
-##Преднастройка
+## Преднастройка
 
-###Установка PostgreSql
+### Установка PostgreSql
 > apt install postgresql
 
 #### Подключение админом
 > su postgres
 > psql -p 5434
 
-####Создание базы и пользователя
+#### Создание базы и пользователя
 ``` sql
 CREATE USER testgeo WITH CREATEDB PASSWORD 'pass' LOGIN;
 CREATE DATABASE testgeo WITH OWNER testgeo ;
@@ -38,46 +38,46 @@ CREATE EXTENSION postgis_tiger_geocoder;
 CREATE EXTENSION postgis_topology;
 ```
 
-###Настройка апача
+### Настройка апача
 В разделе добавить строку иначе не работает dotenv
 > SetEnv PWD path/to/root/project
 
-##Настройка проекта
+##  Настройка проекта
 
-###Клонирование проекта
+### Клонирование проекта
 >git clone https://github.com/elemenarysan/elemenarysan.git
 
-###Подтянуть библиотеки
+### Подтянуть библиотеки
 > composer update
 
-###Скопировать файл переменных
+### Скопировать файл переменных
 >cp .env.example .env
 
 ###Заполнить поля файла .env
-
+ 
 ##Миграция базы
 >./yii migrate/up
 
-#Использование
+# Использование
 
-##Настройка данных
-###Импортировать шейп
+## Настройка данных
+### Импортировать шейп
 > ./yii geo/import-geo  -f Геозона.kml 
 
-###Импортировать кадастры
+### Импортировать кадастры
 > ./yii geo/import-cadastr -f Кадастровые\ номера.csv
 
-##Получение сведений
-###Получить кадастры входящие в зону
+## Получение сведений
+### Получить кадастры входящие в зону
 > ./yii geo/check-in-zone  "Untitled Polygon"
 
-###Получить кадастры Не входящие в зону
+### Получить кадастры Не входящие в зону
 > ./yii geo/check-out-zone  "Untitled Polygon"
 
-###Получить GeoJson зоны и номера
+### Получить GeoJson зоны и номера
 > http://localhost/api/map?cadastr_number=1420988400:01:009:0027&zone_name=Untitled%20Polygon
 
-####Посмотрет полученый geojson
+#### Посмотрет полученый geojson
 > https://geojsonlint.com/
 
 
