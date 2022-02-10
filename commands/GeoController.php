@@ -50,7 +50,6 @@ class GeoController extends Controller
 
             return ExitCode::UNSPECIFIED_ERROR;
         }
-        //echo $this->file . "\n";
 
         $xml = simplexml_load_file($this->file);
         if(!$xml){
@@ -67,7 +66,7 @@ class GeoController extends Controller
 
             return ExitCode::UNSPECIFIED_ERROR;
         }
-        //$root = $xml->Document;
+
         $polygon = $root->Placemark->Polygon;
         $coordinates = (string)$polygon->outerBoundaryIs->LinearRing->coordinates;
         if(empty($coordinates)){
@@ -82,15 +81,17 @@ class GeoController extends Controller
         foreach($coordinateArray as $key => $value){
             $coordinateArray[$key] = explode(',', $value);
         }
-        //print_r($root);
 
+        if(!GeoModel::find()->where(['name' => $root->Placemark->name])->exists()){
+            $model = new GeoModel;
+            $model->name = $root->Placemark->name;
+            $model->geometry = [$coordinateArray];
+            $model->save();
 
-        $model = new GeoModel;
-        $model->name = $root->Placemark->name;
-        $model->geometry = [$coordinateArray];
-        $model->save();
-        
-        echo ('Зона импортирована с именем '.$model->name);
+            echo ('Зона импортирована с именем '.$model->name . "\n");
+        } else {
+            echo ('Геозона с таким именем уже импортирована '.$root->Placemark->name . "\n");
+        }
 
         return ExitCode::OK;
     }
@@ -150,22 +151,22 @@ class GeoController extends Controller
             }
         }
     }
-    
+
     public function getCadastrIsContain($name, $isContain = true)
     {
         if(empty($name)){
             $this->stderr("Не задано имя зоны\n", Console::BOLD);
             return ExitCode::UNSPECIFIED_ERROR;
         }
-        $model = GeoModel::find()->where(['name' => $name])->one(); 
+        $model = GeoModel::find()->where(['name' => $name])->one();
         if(empty($model)){
             $this->stderr("Не найдено зоны\n", Console::BOLD);
             return ExitCode::UNSPECIFIED_ERROR;
-        }        
+        }
         $result = [];
         $cadastrAll = CadastrModel::find()->all();
         foreach($cadastrAll as $cadastrOne){
-            $dis = (new \yii\db\Query())//GeoModel::find()                    
+            $dis = (new \yii\db\Query())
                 ->select(['dis'=>'ST_Contains(geometry, ST_SetSRID(ST_MakePoint('.$cadastrOne->lng.','.$cadastrOne->lat.'),4326))'])
                 ->where(['name' => $name])
                 ->from(GeoModel::tableName())
@@ -176,60 +177,24 @@ class GeoController extends Controller
             if(!$dis['dis'] && !$isContain){
                 $result[] =  $cadastrOne->number;
             }
-        }     
+        }
         return $result;
     }
-    
+
     public function actionCheckInZone($name)
     {
         $inCont = $this->getCadastrIsContain($name);
         foreach($inCont as $value){
             $this->stdout($value."\n", Console::NORMAL);
         }
-        
-    }    
+    }
 
     public function actionCheckOutZone($name)
     {
         $inCont = $this->getCadastrIsContain($name,false);
         foreach($inCont as $value){
             $this->stdout($value."\n", Console::NORMAL);
-        }        
-    }    
-
-    public function actionGeoInZone($name)
-    {
-        if(empty($name)){
-            $this->stderr("Не задано имя зоны\n", Console::BOLD);
-            return ExitCode::UNSPECIFIED_ERROR;
-        }        
-        $model = GeoModel::find()->where(['name' => $name])->one(); 
-        if(empty($model)){
-            $this->stderr("Не найдено зоны\n", Console::BOLD);
-            return ExitCode::UNSPECIFIED_ERROR;
         }
-        
-        $carastr = $cadastrAll = CadastrModel::find()->all();
-        $coordinates = [];
-        foreach($carastr as $cadastrOne){
-            //$this->stdout($value."\n", Console::NORMAL);
-            $coordinates[] = [$cadastrOne->lng,$cadastrOne->lat];
-            $dis = (new \yii\db\Query())
-                ->select(['dis'=>'ST_AsGeoJSON(ST_MakePoint('.$cadastrOne->lng.','.$cadastrOne->lat.'))'])          
-                ->one();    
-            echo $dis['dis'];
-        }      
-        $dis = (new \yii\db\Query())
-                ->select(['dis'=>'ST_AsGeoJSON(geometry)'])
-                ->where(['name' => $name])
-                ->from(GeoModel::tableName())            
-                ->one();
-            
-        
-        echo $dis['dis'];//->toGeoJson('MultiPoint', $coordinates, 4326);
-        
-    }    
-    
-
+    }
 
 }
