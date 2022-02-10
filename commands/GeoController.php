@@ -86,7 +86,7 @@ class GeoController extends Controller
 
 
         $model = new GeoModel;
-        $model->name = $root->name;
+        $model->name = $root->Placemark->name;
         $model->geometry = [$coordinateArray];
         $model->save();
         
